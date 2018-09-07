@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "name": "aws-app",
+  "version": "0.0.0",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "prettier": "^1.14.2"
+  }
+}
