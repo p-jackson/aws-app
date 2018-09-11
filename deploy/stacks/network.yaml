@@ -1,6 +1,11 @@
 Description: >-
   VPC with a public and private subnet
 AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names (e.g. dev)
+    Type: String
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -8,8 +13,15 @@ Resources:
       CidrBlock: 10.0.0.0/16
       EnableDnsSupport: true
       InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
   InternetGateway:
     Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
   VPCGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -21,10 +33,16 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Subnet
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Public Routes
   InternetRoute:
     Type: AWS::EC2::Route
     DependsOn: InternetGateway
@@ -39,8 +57,12 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
   NatGatewayIP:
     Type: AWS::EC2::EIP
+    DependsOn: VPCGatewayAttachment
     Properties:
       Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} IP for NAT Gateway
   NatGateway:
     Type: AWS::EC2::NatGateway
     Properties:
@@ -53,10 +75,16 @@ Resources:
       VpcId: !Ref VPC
       CidrBlock: 10.0.1.0/24
       AvailabilityZone: !GetAtt PublicSubnet.AvailabilityZone
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Database Subnet
   DatabaseRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Database Routes
   NatGatewayRoute:
     Type: AWS::EC2::Route
     Properties:
@@ -72,7 +100,7 @@ Resources:
   WebSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: Web Group
+      GroupName: !Sub ${EnvironmentName} Web Group
       GroupDescription: HTTP and HTTPS traffic in, all traffic out
       VpcId: !Ref VPC
       SecurityGroupIngress:
