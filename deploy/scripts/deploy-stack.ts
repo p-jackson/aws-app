@@ -7,7 +7,7 @@ import { promisify } from "util";
 const readFile = promisify(fs.readFile);
 
 const ENVIRONMENTS = ["dev"];
-const REGION = "ap-southeast-2";
+const REGION = "us-west-2";
 
 async function run() {
   const packageJson = JSON.parse(await readFile("package.json", "utf8"));
