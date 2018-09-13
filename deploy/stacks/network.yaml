@@ -116,3 +116,20 @@ Resources:
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 127.0.0.1/32
+
+Outputs:
+  DatabaseSubnetAID:
+    Description: ID of the first private subnet which contains the database
+    Value: !Ref DatabaseSubnetA
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseSubnetAID
+  DatabaseSubnetBID:
+    Description: ID of the second private subnet which contains the database
+    Value: !Ref DatabaseSubnetB
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseSubnetBID
+  DatabaseSecurityGroup:
+    Description: ID of the security group for the database cluster
+    Value: !Ref DatabaseSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseSecurityGroup

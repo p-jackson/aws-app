@@ -45,7 +45,7 @@ async function run() {
     return;
   }
 
-  const stackName = `${appName}-${answers.environment}-${answers.stack}`;
+  const stackName = makeStackName(appName, answers.environment, answers.stack);
 
   const cf = new aws.CloudFormation({ region: REGION });
 
@@ -66,12 +66,7 @@ async function run() {
           path.join("deploy/stacks", `${answers.stack}.yaml`),
           "utf8"
         ),
-        Parameters: [
-          {
-            ParameterKey: "EnvironmentName",
-            ParameterValue: answers.environment
-          }
-        ]
+        Parameters: getParameters(appName, answers)
       })
       .promise();
   } else {
@@ -82,17 +77,42 @@ async function run() {
           path.join("deploy/stacks", `${answers.stack}.yaml`),
           "utf8"
         ),
-        Parameters: [
-          {
-            ParameterKey: "EnvironmentName",
-            ParameterValue: answers.environment
-          }
-        ]
+        Parameters: getParameters(appName, answers)
       })
       .promise();
   }
 
   console.log("Deployment started.");
+}
+
+function getParameters(appName: string, answers: any) {
+  const parameters = [
+    {
+      ParameterKey: "EnvironmentName",
+      ParameterValue: answers.environment
+    }
+  ];
+
+  if (answers.stack === "database") {
+    parameters.push({
+      ParameterKey: "MasterUsername",
+      ParameterValue: process.env.DB_MASTER_USERNAME
+    });
+    parameters.push({
+      ParameterKey: "MasterUserPassword",
+      ParameterValue: process.env.DB_MASTER_USER_PASSWORD
+    });
+    parameters.push({
+      ParameterKey: "NetworkStack",
+      ParameterValue: makeStackName(appName, answers.environment, "network")
+    });
+  }
+
+  return parameters;
+}
+
+function makeStackName(appName: string, environment: string, stack: string) {
+  return `${appName}-${environment}-${stack}`;
 }
 
 async function getStacks() {

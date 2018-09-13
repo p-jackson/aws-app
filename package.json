@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "license": "UNLICENSED",
   "scripts": {
-    "deploy-stack": "node build/deploy/scripts/deploy-stack.js",
+    "deploy-stack": "node -r dotenv/config build/deploy/scripts/deploy-stack.js",
     "setup": "tsc"
   },
   "devDependencies": {
     "@types/inquirer": "0.0.43",
     "aws-sdk": "^2.312.0",
+    "dotenv": "^6.0.0",
     "inquirer": "^6.2.0",
     "prettier": "^1.14.2",
     "typescript": "~3.0.3"

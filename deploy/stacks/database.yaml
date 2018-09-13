@@ -1,0 +1,47 @@
+Description: >-
+  A serverless aurora cluster that sits in a private subnet
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names (e.g. dev)
+    Type: String
+  NetworkStack:
+    Description: Name of the network stack to import CloudFormation outputs from
+    Type: String
+  MasterUsername:
+    Description: Username for the database root user
+    Type: String
+  MasterUserPassword:
+    Description: Password for the database root user
+    Type: String
+    NoEcho: "true"
+
+Resources:
+  DBCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: aurora
+      EngineVersion: 5.6.10a
+      EngineMode: serverless
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: !Ref MasterUserPassword
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VpcSecurityGroupIds:
+        - Fn::ImportValue: !Sub ${NetworkStack}-DatabaseSecurityGroup
+      ScalingConfiguration:
+        MinCapacity: 2
+        MaxCapacity: 16
+      BackupRetentionPeriod: 1
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} DB cluster
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: The private subnet
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${NetworkStack}-DatabaseSubnetAID
+        - Fn::ImportValue: !Sub ${NetworkStack}-DatabaseSubnetBID
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} DB subnet group
