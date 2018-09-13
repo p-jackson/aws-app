@@ -1,0 +1,40 @@
+Description: >-
+  Buckets and CDN for client-side application
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names (e.g. dev)
+    Type: String
+
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Sub ${EnvironmentName}-client-0d4f1272-f74c-41d3-a043-1427e7763f14
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: 404.html
+      Tags:
+        - Key: EnvironmentName
+          Value: !Ref EnvironmentName
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource:
+              Fn::Join: ["", ["arn:aws:s3:::", !Ref Bucket, "/*"]]
+
+Outputs:
+  WebsiteURL:
+    Value: !GetAtt Bucket.WebsiteURL
+    Description: URL for the client-side application
+  BucketName:
+    Value: !Ref Bucket
+    Description: Name of bucket that contains client-side application
