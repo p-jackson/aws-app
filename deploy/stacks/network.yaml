@@ -56,15 +56,30 @@ Resources:
       SubnetId: !Ref PublicSubnet
       RouteTableId: !Ref PublicRouteTable
 
-  DatabaseSubnet:
+  DatabaseSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      CidrBlock: 10.0.1.0/24
-      AvailabilityZone: !GetAtt PublicSubnet.AvailabilityZone
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone:
+        Fn::Select:
+          - 0
+          - Fn::GetAZs: ""
       Tags:
         - Key: Name
-          Value: !Sub ${EnvironmentName} Private Database Subnet
+          Value: !Sub ${EnvironmentName} Private Database Subnet A
+  DatabaseSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone:
+        Fn::Select:
+          - 1
+          - Fn::GetAZs: ""
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Private Database Subnet B
 
   WebSecurityGroup:
     Type: AWS::EC2::SecurityGroup
